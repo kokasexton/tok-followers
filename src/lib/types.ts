@@ -2,6 +2,7 @@ export interface Profile {
   id: string;
   email: string;
   credits_balance: number;
+  stripe_customer_id: string | null;
   created_at: string;
 }
 
@@ -17,8 +18,23 @@ export interface Scan {
   credits_used: number;
   continuation_token: string | null;
   error_message: string | null;
+  apify_run_id: string | null;
+  apify_dataset_id: string | null;
+  is_preview: boolean;
   created_at: string;
   completed_at: string | null;
+}
+
+export interface Purchase {
+  id: string;
+  user_id: string;
+  credits: number;
+  amount_cents: number;
+  currency: string;
+  stripe_session_id: string | null;
+  stripe_payment_intent: string | null;
+  status: 'pending' | 'paid' | 'refunded';
+  created_at: string;
 }
 
 export interface FollowerRecord {

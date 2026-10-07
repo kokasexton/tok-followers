@@ -1,0 +1,16 @@
+# Supabase project config for the Scoutline edge functions.
+# Deploy:  supabase functions deploy create-checkout-session stripe-webhook start-scan scan-status
+project_id = "tok-followers"
+
+[functions.create-checkout-session]
+verify_jwt = true
+
+[functions.start-scan]
+verify_jwt = true
+
+[functions.scan-status]
+verify_jwt = true
+
+# Stripe cannot send a Supabase JWT — authenticity comes from the Stripe signature.
+[functions.stripe-webhook]
+verify_jwt = false

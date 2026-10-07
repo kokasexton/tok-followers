@@ -1,0 +1,92 @@
+# Scoutline (tok-followers) — Activation Checklist
+
+Goal: **the site is live and can take real purchases**, with credits → Apify scans
+→ downloadable follower/video files wired end to end.
+
+Status legend: `[x]` done in this pass · `[ ]` needs a decision/credential from Koka ·
+`[~]` done locally, needs deploy.
+
+---
+
+## 0. Decisions locked (so the wiring is unambiguous)
+
+1. **Backend = Supabase Edge Functions (Deno).** The repo already has `supabase/` and the
+   front end already uses Supabase Auth + RLS. Edge functions give one backend, one secret
+   store, and zero servers to run. Deploy with `supabase functions deploy`.
+2. **Payments = Stripe Checkout (hosted) + a webhook.** No card data touches the app.
+   Credits are added **only** by the webhook, idempotently (a `stripe_events` table).
+3. **Scans = Apify actor `afanasenko~tiktok-profile-scraper`** (id `evoGyJLMGMqysXSfl`),
+   run from a `start-scan` function; a `scan-status` function polls and ingests.
+4. **Credit model:** 1 credit = 1 delivered row (follower or video). Matches the page's
+   "Only pay for rows you get." Deducted on **delivery**, not on run start.
+5. **Landing hero stays a marketing demo** (it already carries a "Sample report" pill). The
+   paid path is: sign up → buy credits → run scans in the Dashboard. This avoids paying
+   Apify for anonymous traffic and the actor's free-plan caps (100 profiles/run, 15 runs/mo).
+
+## 1. Environment / accounts
+
+- [ ] **Supabase project** — none exists for this app yet. Create one, then:
+  `supabase link --project-ref <ref>` and run the two migrations
+  (`supabase db push`). *(Blocker: needs the project + DB password.)*
+- [ ] **Stripe secret key** — the account `acct_1UEK7KH2jvfhN05` is Koka's live account, but
+  the **live `sk_live_…` is stored only inside the tokentrophy.com WooCommerce settings** and
+  is **not** in `data/credentials-vault.md`. *(Blocker: need Koka's `sk_live_…` or explicit
+  go-ahead to read it from the toktrophy server.)*
+- [x] **Apify token** — `APIFY_API_KEY` is already in the vault (user `avaFeYQctbSMM4ETi`).
+  The edge function reads it from a Supabase secret, never from the client.
+- [ ] Confirm the Apify account is on a **paid plan** for production. The actor's free plan
+  caps at **100 profiles/run and 15 runs/month** — fine for testing, not for customers.
+- [ ] `.env` for the front end: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (see `.env.example`).
+
+## 2. Code fixes shipped this pass
+
+- [x] **Literal `\u2026` / `\u2013` rendering as text** in JSX (`Phone.tsx`, `Pattern.tsx`) —
+  they were inside JSX text nodes, not string literals, so they printed `\u2026` on screen.
+- [x] **`src/config/actors.ts`** rewritten to the real `afanasenko~tiktok-profile-scraper`
+  contract (was pointing at mismatched `scraping_solutions` / `clockworks` ids).
+- [x] **Stripe + Supabase edge functions** added (checkout, webhook, start-scan, scan-status).
+- [x] **Front-end wiring**: Pricing "Buy" → Checkout; Dashboard "New scan" → real Apify pull
+  with live status + CSV download.
+- [x] **Favicon** (`public/favicon.svg`, the Scoutline mark) + `index.html` references it.
+- [x] **`.env.example`** + a real **README** (setup + deploy), replacing the Bolt stub.
+- [x] **Migration** adds `profiles.stripe_customer_id`, `scans.apify_run_id`,
+  `scans.apify_dataset_id`, `purchases`, `stripe_events` (idempotency), and a
+  `followers(scan_id, username)` uniqueness guard.
+
+## 3. Things this actor does NOT do (flag, don't paper over)
+
+- **No per-video metrics.** `afanasenko~tiktok-profile-scraper` returns **profile-level**
+  engagement (Median Views, Most Viewed Video Plays, Avg Shares, ER, Last Post Date) and up to
+  **20 post captions** — it does **not** return a per-video views/likes/shares table.
+  The marketing "last 30 days of videos" file therefore needs **either**
+  (a) a second actor with per-video output (the repo's original
+  `clockworks/tiktok-profile-scraper`), **or** (b) the "videos" file reframed to what this
+  actor returns (profile stats + top captions). **Decision needed.**
+- **Followers are partial for huge accounts.** TikTok hides parts of very large lists; the
+  actor reports how many of how many it read. The page copy already says this — keep it.
+- **Private/deleted/region-blocked profiles** return nothing and are not billed, consistent
+  with "only pay for rows you get."
+
+## 4. Deploy steps (in order)
+
+- [ ] 1. Create Supabase project; `supabase link`; `supabase db push` (both migrations).
+- [ ] 2. `supabase secrets set APIFY_TOKEN=… STRIPE_SECRET_KEY=… STRIPE_WEBHOOK_SECRET=…`
+       (front-end public keys → `.env` / hosting env, not secrets).
+- [ ] 3. `supabase functions deploy create-checkout-session stripe-webhook start-scan scan-status`
+- [ ] 4. Create the Stripe products/prices: `node scripts/stripe-setup.mjs` (idempotent),
+       then copy the printed price IDs into `src/data/packs.ts` (or set them as Supabase secrets).
+- [ ] 5. Add the Stripe webhook endpoint → `https://<ref>.functions.supabase.co/stripe-webhook`,
+       event `checkout.session.completed` (+ `charge.refunded`), copy the `whsec_…`.
+- [ ] 6. `npm install && npm run build` → deploy `dist/` (Netlify/Vercel/Cloudflare Pages).
+- [ ] 7. Buy a test pack with card `4242 4242 4242 4242`; confirm credits rise; run a scan;
+       confirm rows land + CSV downloads.
+
+## 5. Blockers that need Koka (only these)
+
+1. **Supabase project** does not exist yet (need project + DB password).
+2. **Stripe secret key** for `acct_1UEK7KH2jvfhN05` is not in the vault (only in the toktrophy
+   WooCommerce DB).
+
+Resolved since first draft: the global pause was lifted (it was intended to stop the
+startup-outreach lane only; that lane's Launch Radar job stays disabled). `npm install`,
+`tsc --noEmit` (0 errors), `vite build` (✓) and a **live Apify validation run** all pass.

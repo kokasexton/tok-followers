@@ -21,3 +21,9 @@ dist-ssr
 *.sln
 *.sw?
 .env
+.stripe-ids.json
+supabase/.temp
+supabase/.branches
+
+# Local Netlify folder
+.netlify

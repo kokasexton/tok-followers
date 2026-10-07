@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
+import { startScan, scanStatus } from '@/lib/api';
 import type { Scan, FollowerRecord, VideoRecord } from '@/lib/types';
 import { LogoMark } from './icons';
 
@@ -59,6 +60,10 @@ export function Dashboard({ onSignOut, onBackToLanding }: { onSignOut: () => voi
   const [loadingScans, setLoadingScans] = useState(true);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [newHandle, setNewHandle] = useState('');
+  const [newLimit, setNewLimit] = useState(100);
+  const [runMsg, setRunMsg] = useState<string | null>(null);
+  const [running, setRunning] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -165,6 +170,51 @@ export function Dashboard({ onSignOut, onBackToLanding }: { onSignOut: () => voi
     setTab('scans');
   }, []);
 
+  const reloadScans = useCallback(async () => {
+    const { data, error: err } = await supabase.from('scans').select('*').order('created_at', { ascending: false });
+    if (err) setError(err.message);
+    else setScans((data as Scan[]) ?? []);
+  }, []);
+
+  const pollUntilDone = useCallback(async (id: string): Promise<Scan> => {
+    let last: Scan | null = null;
+    for (let i = 0; i < 200; i++) {
+      await new Promise((r) => setTimeout(r, 3000));
+      const { scan } = await scanStatus(id);
+      last = scan;
+      if (scan.status === 'completed' || scan.status === 'failed') return scan;
+    }
+    return last as Scan;
+  }, []);
+
+  const runScan = useCallback(
+    async (preview = false) => {
+      const h = newHandle.trim();
+      if (!h) {
+        setRunMsg('Enter a TikTok handle first.');
+        return;
+      }
+      setRunning(true);
+      setRunMsg(preview ? 'Starting free preview…' : 'Starting scan…');
+      try {
+        const { scan } = await startScan(h, 'followers', preview ? 25 : Number(newLimit) || 0, preview);
+        setRunMsg(`Pulling @${scan.tiktok_handle}…`);
+        const done = await pollUntilDone(scan.id);
+        setRunMsg(
+          done.status === 'failed'
+            ? `Scan failed: ${done.error_message ?? 'unknown error'}`
+            : `Done — ${done.followers_count} followers pulled (${done.credits_used} credits).`,
+        );
+        await reloadScans();
+      } catch (e) {
+        setRunMsg((e as Error).message);
+      } finally {
+        setRunning(false);
+      }
+    },
+    [newHandle, newLimit, pollUntilDone, reloadScans],
+  );
+
   // ===== styles =====
   const pageStyle: React.CSSProperties = {
     minHeight: '100vh',
@@ -228,6 +278,41 @@ export function Dashboard({ onSignOut, onBackToLanding }: { onSignOut: () => voi
             <h1 style={{ margin: 0, fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 'clamp(40px, 6vw, 72px)', lineHeight: 0.9 }}>
               Your scans
             </h1>
+
+            <div style={{ ...cardStyle, padding: 24, display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ fontSize: 18, fontWeight: 700 }}>New scan</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#F8F7FE', borderRadius: 12, padding: '0 12px', flex: '1 1 220px' }}>
+                  <span style={{ fontWeight: 700, color: '#5D57A0' }}>@</span>
+                  <input
+                    value={newHandle}
+                    onChange={(e) => setNewHandle(e.target.value)}
+                    placeholder="competitor"
+                    aria-label="TikTok handle"
+                    style={{ flex: 1, minWidth: 0, border: 0, outline: 'none', background: 'transparent', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, color: '#170E8F', height: 48 }}
+                  />
+                </div>
+                <input
+                  type="number"
+                  min={1}
+                  value={newLimit}
+                  onChange={(e) => setNewLimit(Number(e.target.value))}
+                  aria-label="Max rows"
+                  style={{ width: 110, border: '2px solid #E2E0F7', borderRadius: 12, padding: '12px 14px', fontFamily: 'inherit', fontSize: 16, fontWeight: 600, color: '#170E8F', boxSizing: 'border-box' }}
+                />
+                <button type="button" disabled={running} onClick={() => runScan(false)} className="sl-btn" style={{ background: '#FFE14A', color: '#170E8F', border: 0, fontFamily: 'inherit', fontSize: 15, fontWeight: 800, padding: '14px 22px', borderRadius: 12, cursor: running ? 'wait' : 'pointer', opacity: running ? 0.6 : 1 }}>
+                  {running ? 'Working…' : 'Run scan'}
+                </button>
+                <button type="button" disabled={running} onClick={() => runScan(true)} className="sl-btn" style={{ background: 'transparent', color: '#FFFFFF', border: '2px solid rgba(255,255,255,0.3)', fontFamily: 'inherit', fontSize: 15, fontWeight: 700, padding: '12px 20px', borderRadius: 12, cursor: running ? 'wait' : 'pointer', opacity: running ? 0.6 : 1 }}>
+                  Free preview (25)
+                </button>
+              </div>
+              <div style={{ fontSize: 13, color: '#B9B3F0' }}>
+                1 credit = 1 follower row. {profile ? `${profile.credits_balance.toLocaleString()} credits available. ` : ''}
+                The free preview is 25 rows, once per account per day.
+              </div>
+              {runMsg && <div style={{ fontSize: 14, fontWeight: 700, color: '#FFE14A' }}>{runMsg}</div>}
+            </div>
 
             {loadingScans ? (
               <div style={{ fontSize: 18, color: '#DCD8FF' }}>Loading…</div>

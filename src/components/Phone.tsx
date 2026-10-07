@@ -34,7 +34,7 @@ export function Phone({ shown, initials, statusLine, pillBg, isIdle, isLoading, 
         {/* loading state */}
         {isLoading && (
           <div style={{ padding: '20px 18px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <div style={{ fontWeight: 700, fontSize: 14 }}>Pulling public followers\u2026</div>
+            <div style={{ fontWeight: 700, fontSize: 14 }}>Pulling public followers…</div>
             <div style={{ height: 8, borderRadius: 8, background: '#ECEAFB', overflow: 'hidden' }}>
               <div style={{ height: 8, borderRadius: 8, background: '#2B1CF5', animation: 'sl-load 1.6s ease-out forwards' }} />
             </div>

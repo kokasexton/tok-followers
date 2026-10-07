@@ -1,14 +1,26 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { TikTokPage } from '@/components/TikTokPage';
 import { Dashboard } from '@/components/Dashboard';
 import { AuthModal } from '@/components/AuthModal';
 
 function AppContent() {
-  const { user, loading } = useAuth();
+  const { user, loading, refreshProfile } = useAuth();
   const [view, setView] = useState<'landing' | 'dashboard'>('landing');
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
+
+  // Returning from Stripe Checkout: refresh credits and jump to the dashboard.
+  useEffect(() => {
+    if (loading || !user) return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('checkout') !== 'success') return;
+    refreshProfile();
+    setView('dashboard');
+    const clean = new URL(window.location.href);
+    clean.searchParams.delete('checkout');
+    window.history.replaceState({}, '', clean.toString());
+  }, [loading, user, refreshProfile]);
 
   const openAuth = useCallback((mode: 'signin' | 'signup') => {
     setAuthMode(mode);

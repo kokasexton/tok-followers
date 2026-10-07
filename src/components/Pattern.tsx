@@ -86,7 +86,7 @@ export function Pattern({ hooks }: PatternProps) {
               padding: 28,
             }}
           >
-            <div style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 72, lineHeight: 0.9 }}>21\u201334 sec</div>
+            <div style={{ fontFamily: "'Big Shoulders Display', sans-serif", fontWeight: 900, fontSize: 72, lineHeight: 0.9 }}>21–34 sec</div>
             <div style={{ fontSize: 17, fontWeight: 600, marginTop: 8 }}>the length of their 5 best videos</div>
           </div>
           <div

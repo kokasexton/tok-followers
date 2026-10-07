@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { CheckIcon, ShieldIcon } from './icons';
 import { PACKS } from '@/data/tiktokData';
+import { useAuth } from '@/lib/auth';
+import { createCheckout } from '@/lib/api';
 
 interface PricingProps {
   pack: number;
@@ -7,9 +10,34 @@ interface PricingProps {
   packPrice: string;
   packFits: string;
   pickPack: (i: number) => void;
+  onRequireAuth: () => void;
 }
 
-export function Pricing({ pack, packCredits, packPrice, packFits, pickPack }: PricingProps) {
+export function Pricing({ pack, packCredits, packPrice, packFits, pickPack, onRequireAuth }: PricingProps) {
+  const { user } = useAuth();
+  const [buying, setBuying] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const buy = async () => {
+    if (!user) {
+      onRequireAuth();
+      return;
+    }
+    const priceId = PACKS[pack]?.stripePriceId;
+    if (!priceId) {
+      setErr('Checkout is not configured yet.');
+      return;
+    }
+    setBuying(true);
+    setErr(null);
+    try {
+      const { url } = await createCheckout(priceId);
+      window.location.href = url;
+    } catch (e) {
+      setErr((e as Error).message);
+      setBuying(false);
+    }
+  };
   return (
     <section id="pricing" style={{ maxWidth: 1180, margin: '0 auto', padding: '112px 24px', display: 'flex', flexWrap: 'wrap', gap: 56, alignItems: 'center' }}>
       <div style={{ flex: '1 1 380px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 22 }}>
@@ -100,8 +128,10 @@ export function Pricing({ pack, packCredits, packPrice, packFits, pickPack }: Pr
             Credits never expire. Top up any time.
           </li>
         </ul>
-        <a
-          href="#start"
+        <button
+          type="button"
+          onClick={buy}
+          disabled={buying}
           className="sl-btn sl-shine"
           style={{
             textDecoration: 'none',
@@ -112,12 +142,17 @@ export function Pricing({ pack, packCredits, packPrice, packFits, pickPack }: Pr
             fontSize: 18,
             padding: 19,
             borderRadius: 18,
+            border: 0,
+            fontFamily: 'inherit',
+            cursor: buying ? 'wait' : 'pointer',
+            opacity: buying ? 0.7 : 1,
           }}
         >
-          Buy {packCredits} credits for {packPrice}
-        </a>
+          {buying ? 'Opening checkout…' : `Buy ${packCredits} credits for ${packPrice}`}
+        </button>
+        {err && <p style={{ margin: '-8px 0 0', textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#C0274B' }}>{err}</p>}
         <p style={{ margin: '-6px 0 0', textAlign: 'center', fontSize: 14, color: '#5D57A0' }}>
-          Not sure yet? Preview 25 followers of any account free first.
+          Pay by card via Stripe. Credits land in your account instantly. Not sure yet? Preview 25 followers of any account free first.
         </p>
       </div>
     </section>

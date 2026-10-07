@@ -32,15 +32,19 @@ export interface HookRow {
 
 export interface Pack {
   c: string;
+  credits: number;
   p: string;
+  priceUsd: number;
+  /** Stripe Price ID (price_…). Populated by `node scripts/stripe-setup.mjs`; see .env.example. */
+  stripePriceId: string;
   fits: string;
 }
 
 export const PACKS: Pack[] = [
-  { c: '2,500', p: '$25', fits: 'Pulls one account with up to 2,500 followers, or the last 30 days of videos for about 60 accounts.' },
-  { c: '10,000', p: '$100', fits: 'Pulls a 10K-follower creator, or a 9K account plus its last 30 days of videos.' },
-  { c: '50,000', p: '$500', fits: 'Pulls a 50K-follower competitor, or five 10K creators in your niche.' },
-  { c: '250,000', p: '$2,500', fits: 'Pulls a 212K account like the sample above, with plenty left for videos on dozens of accounts.' },
+  { c: '2,500', credits: 2500, p: '$25', priceUsd: 25, stripePriceId: import.meta.env.VITE_STRIPE_PRICE_2500 ?? '', fits: 'Pulls one account with up to 2,500 followers, or the last 30 days of videos for about 60 accounts.' },
+  { c: '10,000', credits: 10000, p: '$100', priceUsd: 100, stripePriceId: import.meta.env.VITE_STRIPE_PRICE_10000 ?? '', fits: 'Pulls a 10K-follower creator, or a 9K account plus its last 30 days of videos.' },
+  { c: '50,000', credits: 50000, p: '$500', priceUsd: 500, stripePriceId: import.meta.env.VITE_STRIPE_PRICE_50000 ?? '', fits: 'Pulls a 50K-follower competitor, or five 10K creators in your niche.' },
+  { c: '250,000', credits: 250000, p: '$2,500', priceUsd: 2500, stripePriceId: import.meta.env.VITE_STRIPE_PRICE_250000 ?? '', fits: 'Pulls a 212K account like the sample above, with plenty left for videos on dozens of accounts.' },
 ];
 
 export const FOLLOWER_ROWS: Omit<FollowerRow, 'delay'>[] = [

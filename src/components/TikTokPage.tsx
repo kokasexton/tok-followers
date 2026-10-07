@@ -113,6 +113,7 @@ export function TikTokPage({ onAuthOpen, isLoggedIn, onGoToDashboard }: TikTokPa
         packPrice={packData.p}
         packFits={packData.fits}
         pickPack={setPack}
+        onRequireAuth={() => onAuthOpen('signup')}
       />
       <FAQ />
       <FinalCTA />
