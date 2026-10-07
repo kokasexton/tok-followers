@@ -1,0 +1,184 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== TikTok theme base ===== */
+body {
+  margin: 0;
+  background: #2B1CF5;
+  font-family: 'Instrument Sans', system-ui, sans-serif;
+}
+
+a {
+  color: #FFFFFF;
+}
+a:hover {
+  color: #FFE14A;
+}
+
+input::placeholder {
+  color: #8F88C9;
+}
+
+/* ===== Buttons & interactions ===== */
+.sl-btn {
+  transition: transform 0.15s ease;
+}
+.sl-btn:hover {
+  transform: translateY(-2px) rotate(-0.5deg);
+}
+.sl-btn:focus-visible,
+summary:focus-visible,
+a:focus-visible {
+  outline: 3px solid #FFE14A;
+  outline-offset: 3px;
+}
+.sl-field:focus-within {
+  box-shadow: 0 0 0 3px #FFE14A;
+}
+
+/* ===== FAQ details ===== */
+details summary {
+  list-style: none;
+  cursor: pointer;
+}
+details summary::-webkit-details-marker {
+  display: none;
+}
+details[open] .faq-plus {
+  transform: rotate(45deg);
+}
+
+/* ===== Keyframes ===== */
+@keyframes sl-load {
+  from { width: 3%; }
+  to { width: 100%; }
+}
+@keyframes sl-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.9; }
+}
+@keyframes sl-pop {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sl-float {
+  0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+  50% { transform: translateY(-8px) rotate(var(--r, 0deg)); }
+}
+@keyframes sl-drift1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(100px, -60px) scale(1.15); }
+  66% { transform: translate(-80px, 50px) scale(0.9); }
+}
+@keyframes sl-drift2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-120px, 80px) scale(1.2); }
+}
+@keyframes sl-up {
+  0% { transform: translateY(0) rotate(0) scale(0.5); opacity: 0; }
+  12% { opacity: 0.85; }
+  100% { transform: translateY(-640px) rotate(25deg) scale(1.1); opacity: 0; }
+}
+@keyframes sl-phone {
+  0%, 100% { transform: perspective(1300px) rotateY(-16deg) rotateX(7deg) translateY(0); }
+  50% { transform: perspective(1300px) rotateY(-6deg) rotateX(3deg) translateY(-16px); }
+}
+@keyframes sl-eq {
+  0%, 100% { height: 6px; }
+  50% { height: 24px; }
+}
+@keyframes sl-marq {
+  to { transform: translateX(-50%); }
+}
+@keyframes sl-marq-r {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+@keyframes sl-shine {
+  0%, 55% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+@keyframes sl-rise {
+  from { opacity: 0; transform: translateY(56px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes sl-growx {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes sl-glare {
+  0%, 100% { transform: translateX(-30%) rotate(18deg); }
+  50% { transform: translateX(30%) rotate(18deg); }
+}
+@property --a {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes sl-spin {
+  to { --a: 360deg; }
+}
+
+/* ===== Animation utility classes ===== */
+.sl-ring {
+  display: block;
+  background: conic-gradient(from var(--a), #FFE14A, #FF7AC6, #5EE7FF, #8B5CFF, #FFE14A);
+  animation: sl-spin 4s linear infinite;
+  box-shadow: 0 0 50px -10px rgba(255, 225, 74, 0.55);
+}
+.sl-shine {
+  position: relative;
+  overflow: hidden;
+}
+.sl-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.7) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: sl-shine 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+.sl-marquee {
+  display: flex;
+  width: max-content;
+  animation: sl-marq 38s linear infinite;
+}
+.sl-marquee-r {
+  display: flex;
+  width: max-content;
+  animation: sl-marq-r 44s linear infinite;
+}
+.sl-grow {
+  transform-origin: left center;
+}
+.sl-lift {
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease;
+}
+.sl-lift:hover {
+  transform: translateY(-8px) rotate(0.6deg);
+  box-shadow: 0 40px 80px -40px rgba(8, 4, 60, 0.9);
+}
+
+/* Scroll-driven animations (progressive enhancement) */
+@supports (animation-timeline: view()) {
+  .sl-reveal {
+    animation: sl-rise linear both;
+    animation-timeline: view();
+    animation-range: entry 0% cover 28%;
+  }
+  .sl-grow {
+    animation: sl-growx linear both;
+    animation-timeline: view();
+    animation-range: entry 15% cover 45%;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
