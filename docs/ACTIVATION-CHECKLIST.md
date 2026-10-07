@@ -104,3 +104,6 @@ startup-outreach lane only; that lane's Launch Radar job stays disabled). `npm i
 - **E2E proven:** unauth → 401; bad signature → 400; test user +5 credits → Apify run → 5 rows
   ingested → 5 credits charged → live Checkout session returned.
 - **Remaining decision:** the per-video '30-day videos' deliverable (§3). Followers product is live.
+
+### PostgREST schema-cache note (2026-10-06)
+`supabase db push` applies DDL over the direct Postgres connection and does NOT notify PostgREST, so the REST schema cache goes stale — the client then errors like `Could not find the 'is_preview' column of 'scans' in the schema cache`. Fix: a migration that runs `NOTIFY pgrst, 'reload schema';` (added as `20261007040000_reload_pgrst.sql`). Run one after any future `db push`.
