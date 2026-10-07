@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "github": {
+      "enabled": true
+    },
+    "thor_kss": {
+      "enabled": true
+    }
+  }
+}
