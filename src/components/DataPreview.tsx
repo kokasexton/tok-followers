@@ -232,7 +232,7 @@ export function DataPreview() {
             <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
           </svg>
           <p style={{ margin: 0, fontSize: 17, lineHeight: 1.5, color: '#DCD8FF', flex: '1 1 400px', minWidth: 0 }}>
-            Both files come with every pull. The followers file is included with every credit pack; the 30-day videos file is an add-on.
+            Both files come with every pull. The followers file is included with every credit; the 30-day videos file is an add-on.
           </p>
           <a
             href="#pricing"

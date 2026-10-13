@@ -137,7 +137,7 @@ export function Hero(props: HeroProps) {
             }}
           >
             <strong style={{ color: '#FFE14A' }}>$10 per 1,000 followers</strong>
-            Credit packs from $25
+            Refill from $10
           </a>
         </div>
       </div>

@@ -79,10 +79,10 @@ export function Pricing({ pack, packCredits, packPrice, packFits, pickPack, onRe
         }}
       >
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 }}>
-          <h3 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>Choose a credit pack</h3>
+          <h3 style={{ margin: 0, fontSize: 22, fontWeight: 700 }}>Refill your credits</h3>
           <span style={{ fontSize: 15, fontWeight: 700, color: '#5D57A0' }}>$10 per 1,000 credits</span>
         </div>
-        <div role="group" aria-label="Credit packs" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
+        <div role="group" aria-label="Credit refill" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
           {PACKS.map((k, i) => {
             const on = pack === i;
             return (
@@ -148,7 +148,7 @@ export function Pricing({ pack, packCredits, packPrice, packFits, pickPack, onRe
             opacity: buying ? 0.7 : 1,
           }}
         >
-          {buying ? 'Opening checkout…' : `Buy ${packCredits} credits for ${packPrice}`}
+          {buying ? 'Opening checkout…' : `Refill ${packCredits} credits for ${packPrice}`}
         </button>
         {err && <p style={{ margin: '-8px 0 0', textAlign: 'center', fontSize: 14, fontWeight: 700, color: '#C0274B' }}>{err}</p>}
         <p style={{ margin: '-6px 0 0', textAlign: 'center', fontSize: 14, color: '#5D57A0' }}>

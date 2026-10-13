@@ -41,10 +41,7 @@ export interface Pack {
 }
 
 export const PACKS: Pack[] = [
-  { c: '2,500', credits: 2500, p: '$25', priceUsd: 25, stripePriceId: import.meta.env.VITE_STRIPE_PRICE_2500 ?? '', fits: 'Pulls one account with up to 2,500 followers, or the last 30 days of videos for about 60 accounts.' },
-  { c: '10,000', credits: 10000, p: '$100', priceUsd: 100, stripePriceId: import.meta.env.VITE_STRIPE_PRICE_10000 ?? '', fits: 'Pulls a 10K-follower creator, or a 9K account plus its last 30 days of videos.' },
-  { c: '50,000', credits: 50000, p: '$500', priceUsd: 500, stripePriceId: import.meta.env.VITE_STRIPE_PRICE_50000 ?? '', fits: 'Pulls a 50K-follower competitor, or five 10K creators in your niche.' },
-  { c: '250,000', credits: 250000, p: '$2,500', priceUsd: 2500, stripePriceId: import.meta.env.VITE_STRIPE_PRICE_250000 ?? '', fits: 'Pulls a 212K account like the sample above, with plenty left for videos on dozens of accounts.' },
+  { c: '1,000', credits: 1000, p: '$10', priceUsd: 10, stripePriceId: import.meta.env.VITE_STRIPE_PRICE_1000 ?? '', fits: 'Refills 1,000 credits for $10 — a few full follower pulls, or the last 30 days of videos on about 25 accounts. Refill any time you run low.' },
 ];
 
 export const FOLLOWER_ROWS: Omit<FollowerRow, 'delay'>[] = [

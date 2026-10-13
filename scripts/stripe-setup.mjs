@@ -3,8 +3,8 @@
 //
 //   STRIPE_SECRET_KEY=sk_live_… node scripts/stripe-setup.mjs
 //
-// Prints the four price IDs and writes them to .stripe-ids.json (git-ignored).
-// Put them in the front-end env as VITE_STRIPE_PRICE_2500 / _10000 / _50000 / _250000.
+// Prints the price ID and writes it to .stripe-ids.json (git-ignored).
+// Put it in the front-end env as VITE_STRIPE_PRICE_1000.
 //
 // No dependencies — talks to the Stripe REST API with fetch.
 
@@ -16,11 +16,9 @@ if (!KEY) {
   process.exit(1);
 }
 
+// Single refill: $10 buys 1,000 credits ($10 per 1,000). amount is in cents.
 const PACKS = [
-  { credits: 2500, amount: 2500_00, key: 'scoutline_credits_2500' },
-  { credits: 10000, amount: 10000_00, key: 'scoutline_credits_10000' },
-  { credits: 50000, amount: 50000_00, key: 'scoutline_credits_50000' },
-  { credits: 250000, amount: 250000_00, key: 'scoutline_credits_250000' },
+  { credits: 1000, amount: 10_00, key: 'scoutline_credits_1000' },
 ];
 
 const API = 'https://api.stripe.com/v1';

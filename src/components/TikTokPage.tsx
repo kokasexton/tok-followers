@@ -33,7 +33,7 @@ function cleanHandle(h: string): string {
 export function TikTokPage({ onAuthOpen, isLoggedIn, onGoToDashboard }: TikTokPageProps) {
   const [handle, setHandle] = useState('');
   const [phase, setPhase] = useState<Phase>('idle');
-  const [pack, setPack] = useState(1);
+  const [pack, setPack] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const pull = useCallback(() => {
