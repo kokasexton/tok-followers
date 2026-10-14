@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/lib/auth';
+import { useAuth } from '@/lib/auth-context';
 import { supabase } from '@/lib/supabase';
 import { startScan, scanStatus } from '@/lib/api';
 import type { Scan, FollowerRecord, VideoRecord } from '@/lib/types';

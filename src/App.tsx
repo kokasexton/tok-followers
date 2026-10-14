@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
-import { AuthProvider, useAuth } from '@/lib/auth';
+import { AuthProvider } from '@/lib/auth';
+import { useAuth } from '@/lib/auth-context';
 import { TikTokPage } from '@/components/TikTokPage';
 import { Dashboard } from '@/components/Dashboard';
 import { AuthModal } from '@/components/AuthModal';

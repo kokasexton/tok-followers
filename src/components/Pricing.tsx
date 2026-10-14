@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { CheckIcon, ShieldIcon } from './icons';
 import { PACKS } from '@/data/tiktokData';
-import { useAuth } from '@/lib/auth';
+import { useAuth } from '@/lib/auth-context';
 import { createCheckout } from '@/lib/api';
 
 interface PricingProps {
